@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\SettingService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -14,6 +15,7 @@ class SettingController extends Controller
     {
         return view('setting.edit', [
             'user' => $request->user(),
+            'reservationTimes' => SettingService::reservationTimes(),
         ]);
     }
 }
