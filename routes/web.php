@@ -29,6 +29,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::get('setting', [SettingController::class, 'edit'])->name('setting.edit');
+    Route::patch('setting', [SettingController::class, 'update'])->name('setting.update');
 });
 
 require __DIR__ . '/auth.php';

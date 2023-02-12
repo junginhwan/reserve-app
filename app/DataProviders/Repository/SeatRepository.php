@@ -15,6 +15,11 @@ class SeatRepository
 
     public static function truncate()
     {
-        return Seat:: truncate();
+        return Seat::truncate();
+    }
+
+    public static function seats()
+    {
+        return Seat::all();
     }
 }

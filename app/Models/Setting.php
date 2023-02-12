@@ -10,6 +10,7 @@ class Setting extends Model
     use HasFactory;
 
     protected $fillable = [
+        'user_id',
         'mqv_id',
         'mqv_password',
         'start_time',
@@ -23,6 +24,6 @@ class Setting extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->hasOne(User::class);
     }
 }
