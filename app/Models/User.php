@@ -44,7 +44,7 @@ class User extends Authenticatable
 
     public function setting()
     {
-        return $this->belongsTo(Setting::class);
+        return $this->belongsTo(Setting::class, 'id', 'user_id');
     }
 
     public function user_seats()

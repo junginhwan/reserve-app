@@ -2,27 +2,26 @@
 
 namespace App\Console\Commands;
 
-use App\DataProviders\Repository\SeatRepository;
+use App\Models\User;
 use App\Services\MqvService;
 use Illuminate\Console\Command;
 
-class MqvSeatCommand extends Command
+class MqvReservationCommand extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'mqv:seat';
+    protected $signature = 'mqv:reservation';
+    private $service;
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'MQV 좌석 정보를 크롤링한 후 DB에 저장합니다.';
-
-    private $service;
+    protected $description = 'MQV 좌석 예약';
 
     public function __construct(MqvService $service)
     {
@@ -37,11 +36,11 @@ class MqvSeatCommand extends Command
      */
     public function handle()
     {
-        $this->service->login();
-        $seats = $this->service->seats();
-        if (count($seats) > 0) {
-            SeatRepository::truncate();
-            SeatRepository::create($seats);
+        $users = User::get();
+        foreach ($users as $user) {
+            if (!empty($user->setting?->mqv_id) && !empty($user->setting?->mqv_password)) {
+                $this->service->reservationHandler($user);
+            }
         }
         return Command::SUCCESS;
     }

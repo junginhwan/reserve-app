@@ -22,16 +22,17 @@ class SettingController extends Controller
      */
     public function edit(Request $request, SeatService $seatService): View
     {
-        dd($request->user()->setting());
+        $seatOptions = $seatService->seatOptions();
         return view('setting.edit', [
             'user' => $request->user(),
             'reservationTimes' => $this->service->reservationTimes(),
-            'seatOptions' => $seatService->seatOptions(),
+            'seatOptions' => $seatOptions,
         ]);
     }
 
     public function update(SettingRequest $request, SettingService $service)
     {
         $service->update($request->all());
+        return redirect('setting');
     }
 }

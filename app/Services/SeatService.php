@@ -16,7 +16,7 @@ final class SeatService
 
     public function seatOptions(): array
     {
-        $result = [];
+        $result[''] = '선택하세요.';
         $seats = $this->seatRepository->seats();
         foreach ($seats as $seat) {
             $result[$seat['id']] = $seat['name'];

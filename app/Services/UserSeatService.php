@@ -18,7 +18,7 @@ final class UserSeatService
     public function update(array $user_seats)
     {
         $this->userSeatRepository->delete();
-        $this->inserts(array_unique($user_seats));
+        $this->inserts(array_unique(array_filter($user_seats)));
     }
 
     private function inserts(array $user_seats)

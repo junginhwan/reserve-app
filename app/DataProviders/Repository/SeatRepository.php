@@ -20,6 +20,6 @@ class SeatRepository
 
     public static function seats()
     {
-        return Seat::all();
+        return Seat::orderBy('name', 'asc')->get();
     }
 }

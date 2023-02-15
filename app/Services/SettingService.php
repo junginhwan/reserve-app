@@ -33,6 +33,7 @@ final class SettingService
     {
         $userSeatService = new UserSeatService(new UserSeatRepository());
         DB::transaction(function () use ($param, $userSeatService) {
+            $param['meeting_seat_reservation'] = isset($param['meeting_seat_reservation']) ? 1 : 0;
             $this->settingRepository->update($param);
             $userSeatService->update($param['user_seats']);
         });
