@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Services;
 
 use xj\snoopy\Snoopy;
-use Carbon\Carbon;
 
 class MqvService
 {
@@ -77,7 +76,7 @@ class MqvService
         return json_decode($this->snoopy->results, true);
     }
 
-    public function reservationHandler($user)
+    public function reservationHandler($user, $logger)
     {
 
         $datetime = new \DateTime();
@@ -92,6 +91,7 @@ class MqvService
             $reservations = $this->meetingRoomsReservation();
             $this->setMeetingRoomsReservations($reservations);
             if ($this->isMeetingRoomsReservations()) {
+                $logger->info(__METHOD__. "{$user->name} 미팅 일정 확인");
                 foreach ($reservations['meetingRoomReservationList'] as $reservation) {
                     $reservation_date = $reservation['startAt'][0]."-".sprintf('%02d',$reservation['startAt'][1])."-".$reservation['startAt'][2];
                     if (strtotime($datetime->format('Y-m-d')) === strtotime($reservation_date) && !in_array($reservation_date, $reservation_dates)) {
@@ -110,9 +110,12 @@ class MqvService
                                 }
                             }
                         }
-                        mail($user->email, $message, $message);
+                        $logger->info(__METHOD__. "{$user->name} message : {$message}");
+                        // mail($user->email, $message, $message);
                     }
                 }
+            } else {
+                $logger->info(__METHOD__. "{$user->name} 등록된 미팅 일정이 없습니다.");
             }
         }
     }

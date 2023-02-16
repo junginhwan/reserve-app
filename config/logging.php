@@ -117,6 +117,18 @@ return [
         'emergency' => [
             'path' => storage_path('logs/laravel.log'),
         ],
+
+        'mqv-seat' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/mqv_seat.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+        ],
+
+        'mqv-reservation' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/mqv_reservation.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+        ],
     ],
 
 ];

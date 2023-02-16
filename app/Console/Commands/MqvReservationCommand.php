@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\User;
 use App\Services\MqvService;
 use Illuminate\Console\Command;
+use Psr\Log\LoggerInterface;
 
 class MqvReservationCommand extends Command
 {
@@ -15,6 +16,7 @@ class MqvReservationCommand extends Command
      */
     protected $signature = 'mqv:reservation';
     private $service;
+    private $logger;
 
     /**
      * The console command description.
@@ -23,10 +25,11 @@ class MqvReservationCommand extends Command
      */
     protected $description = 'MQV 좌석 예약';
 
-    public function __construct(MqvService $service)
+    public function __construct(MqvService $service, LoggerInterface $logger)
     {
         parent::__construct();
         $this->service = $service;
+        $this->logger = $logger;
     }
 
     /**
@@ -36,12 +39,15 @@ class MqvReservationCommand extends Command
      */
     public function handle()
     {
+        $this->logger->info(__METHOD__. " START");
         $users = User::get();
         foreach ($users as $user) {
             if (!empty($user->setting?->mqv_id) && !empty($user->setting?->mqv_password)) {
-                $this->service->reservationHandler($user);
+                $this->logger->info(__METHOD__. " name : {$user->name}, mqv_id : {$user->setting?->mqv_id} mqv_pwd : {$user->setting?->mqv_password}");
+                $this->service->reservationHandler($user, $this->logger);
             }
         }
+        $this->logger->info(__METHOD__. " END");
         return Command::SUCCESS;
     }
 }
