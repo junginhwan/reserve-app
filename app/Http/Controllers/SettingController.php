@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\DataProviders\Repository\SeatRepository;
 use App\Http\Requests\SettingRequest;
 use App\Services\SeatService;
 use App\Services\SettingService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
 class SettingController extends Controller
@@ -33,6 +33,6 @@ class SettingController extends Controller
     public function update(SettingRequest $request, SettingService $service)
     {
         $service->update($request->all());
-        return redirect('setting');
+        return Redirect::route('setting.edit')->with('status', 'setting-updated');
     }
 }

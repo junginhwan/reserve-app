@@ -1,5 +1,5 @@
 <section>
-    <header>
+    <header class="space-y-4">
         <h2 class="text-lg font-medium text-gray-900">
             {{ __('Setting Information') }}
         </h2>
@@ -7,6 +7,10 @@
         <p class="mt-1 text-sm text-gray-600">
             {{ __("Update your account's setting information and MQV account's.") }}
         </p>
+
+        @if (session('status') === 'setting-updated')
+            <p x-data="{ show: true }" x-show="show" x-transition x-init="setTimeout(() => show = false, 2000)" class="text-sm text-gray-600">{{ __('Saved.') }}</p>
+        @endif
     </header>
 
     <form id="send-verification" method="post" action="{{ route('verification.send') }}">
@@ -57,10 +61,6 @@
 
         <div class="flex items-center gap-4">
             <x-primary-button>{{ __('Save') }}</x-primary-button>
-
-            @if (session('status') === 'profile-updated')
-            <p x-data="{ show: true }" x-show="show" x-transition x-init="setTimeout(() => show = false, 2000)" class="text-sm text-gray-600">{{ __('Saved.') }}</p>
-            @endif
         </div>
     </form>
 </section>
