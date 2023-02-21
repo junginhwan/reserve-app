@@ -164,9 +164,6 @@ class MqvService
             } else {
                 $message .= "실패 : {$result['code']} {$result['message']} <br/>";
                 $code = $result['code'];
-                if ($result['code'] === 'CONFLICT') { // 이미 예약
-                    break;
-                }
             }
         }
         return [
