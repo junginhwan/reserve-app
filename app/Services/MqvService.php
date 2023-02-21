@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use xj\snoopy\Snoopy;
+use App\Models\Reservation;
 
 class MqvService
 {
@@ -14,6 +15,7 @@ class MqvService
     private $mqv_password;
     private $floorId = 19;
     private $meetingRoomsReservations;
+    private $reservation_dates = [];
 
     public function __construct(Snoopy $snoopy)
     {
@@ -78,15 +80,56 @@ class MqvService
 
     public function reservationHandler($user, $logger)
     {
+        if (empty($this->reservation_dates[$user->id])) {
+            $this->reservation_dates[$user->id] = [];
+        }
+
+        if ((int) $user->setting?->meeting_seat_reservation === 1) {
+            $this->setMqvId($user->setting?->mqv_id);
+            $this->setMqvPassword($user->setting?->mqv_password);
+            $this->login();
+            $this->autoReservation($user, $logger);
+        }
+
+        $this->reservation($user, $logger);
+    }
+
+    private function reservation($user, $logger)
+    {
+        $datetime = new \DateTime();
+        $datetime->add(new \DateInterval('P1D'));
+
+        $reservation = Reservation::where('user_id', $user->id)
+            ->where('reservation_date', $datetime->format('Y-m-d'))
+            ->whereNull('code')
+            ->first();
+
+        if (!empty($reservation->id)) {
+            $reservation_date = $reservation->reservation_date;
+            if (strtotime($datetime->format('Y-m-d')) === strtotime($reservation_date) && !in_array($reservation_date, $this->reservation_dates[$user->id])) {
+                if ((int) $user->setting?->meeting_seat_reservation !== 1) {
+                    $this->setMqvId($user->setting?->mqv_id);
+                    $this->setMqvPassword($user->setting?->mqv_password);
+                    $this->login();
+                }
+
+                $exec = $this->reservationExec($datetime, $user, $reservation->reservation_seats, $reservation->start_time, $reservation->end_time);
+                $logger->info(__METHOD__. "{$user->name} message : {$exec['message']}");
+
+                $reservation->code = (!empty($exec['code'])) ? $exec['code'] : 'SUCCESS';
+                $reservation->message = $exec['message'];
+                $reservation->save();
+                // mail($user->email, $message, $message);
+            }
+        }
+    }
+
+    private function autoReservation($user, $logger)
+    {
 
         $datetime = new \DateTime();
         $datetime->add(new \DateInterval('P1D'));
 
-        $this->setMqvId($user->setting?->mqv_id);
-        $this->setMqvPassword($user->setting?->mqv_password);
-        $this->login();
-
-        $reservation_dates = array();
         if ((int) $user->setting?->meeting_seat_reservation === 1) {
             $reservations = $this->meetingRoomsReservation();
             $this->setMeetingRoomsReservations($reservations);
@@ -94,23 +137,9 @@ class MqvService
                 $logger->info(__METHOD__. "{$user->name} 미팅 일정 확인");
                 foreach ($reservations['meetingRoomReservationList'] as $reservation) {
                     $reservation_date = $reservation['startAt'][0]."-".sprintf('%02d',$reservation['startAt'][1])."-".$reservation['startAt'][2];
-                    if (strtotime($datetime->format('Y-m-d')) === strtotime($reservation_date) && !in_array($reservation_date, $reservation_dates)) {
-                        list($start_date, $end_date) = $this->reserveDate($datetime, $reservation['startAt'], $user);
-                        $message = "";
-                        foreach ($user->user_seats as $user_seat) {
-                            $result = $this->seatReservation($start_date, $end_date, $user_seat->seat_id);
-                            if (empty($result['code'])) {
-                                $reservation_dates[] = $reservation_date;
-                                $message = "MQV {$reservation_date} 자리 예약에 성공하였습니다.";
-                                break;
-                            } else {
-                                $message .= "자리 예약 실패 : {$result['code']} {$result['message']} <br/>";
-                                if ($result['code'] === 'CONFLICT') { // 이미 예약
-                                    break;
-                                }
-                            }
-                        }
-                        $logger->info(__METHOD__. "{$user->name} message : {$message}");
+                    if (strtotime($datetime->format('Y-m-d')) === strtotime($reservation_date) && !in_array($reservation_date, $this->reservation_dates[$user->id])) {
+                        $exec = $this->reservationExec($datetime, $user, $user->user_seats, $user->setting?->start_time, $user->setting?->end_time);
+                        $logger->info(__METHOD__. "{$user->name} message : {$exec['message']}");
                         // mail($user->email, $message, $message);
                     }
                 }
@@ -118,6 +147,32 @@ class MqvService
                 $logger->info(__METHOD__. "{$user->name} 등록된 미팅 일정이 없습니다.");
             }
         }
+    }
+
+    private function reservationExec($datetime, $user, $seats, $start_time, $end_time)
+    {
+        list($start_date, $end_date) = $this->reserveDate($datetime, $start_time, $end_time);
+        $message = "";
+        $code = "";
+        $reservation_date = $datetime->format('Y-m-d');
+        foreach ($seats as $seat) {
+            $result = $this->seatReservation($start_date, $end_date, $seat->seat_id);
+            if (empty($result['code'])) {
+                $this->reservation_dates[$user->id][] = $reservation_date;
+                $message = "성공 : MQV {$reservation_date} 자리 예약에 성공하였습니다.";
+                break;
+            } else {
+                $message .= "실패 : {$result['code']} {$result['message']} <br/>";
+                $code = $result['code'];
+                if ($result['code'] === 'CONFLICT') { // 이미 예약
+                    break;
+                }
+            }
+        }
+        return [
+            'code' => $code,
+            'message' => $message,
+        ];
     }
 
     private function seatReservation($start_date, $end_date, $seat_id)
@@ -129,11 +184,10 @@ class MqvService
         return json_decode($this->snoopy->results, true);
     }
 
-    private function reserveDate($datetime, $reserveDates, $user)
+    private function reserveDate($datetime, $start_time, $end_time)
     {
-        $start_time = explode(":", $user->setting?->start_time);
-        $end_time = explode(":", $user->setting?->end_time);
-        $datetime->setDate($reserveDates[0], $reserveDates[1], $reserveDates[2]);
+        $start_time = explode(":", $start_time);
+        $end_time = explode(":", $end_time);
         $datetime->setTime((int) $start_time[0], (int) $start_time[1], 0);
         $start_date = strtotime($datetime->format('Y-m-d H:i:s'));
         $datetime->setTime((int) $end_time[0], (int) $end_time[1], 0);

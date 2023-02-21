@@ -27,6 +27,7 @@ class SettingController extends Controller
             'user' => $request->user(),
             'reservationTimes' => $this->service->reservationTimes(),
             'seatOptions' => $seatOptions,
+            'user_seats' => $request->user()->user_seats()->orderBy('idx')->get(),
         ]);
     }
 

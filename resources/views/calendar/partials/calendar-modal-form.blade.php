@@ -3,9 +3,11 @@
         @csrf
     </form>
 
-    <form method="post" action="{{ route('reservation.update') }}" class="mt-6 space-y-6">
+    <form method="post" id="calendar-form" action="{{ route('reservation.update') }}" class="mt-6 space-y-6">
         @csrf
         @method('patch')
+        <input type="hidden" name="start_date" value="">
+        <input type="hidden" name="end_date" value="">
 
         <div>
             <x-input-label for="start_time" :value="__('예약 시작 시간')" />
@@ -28,5 +30,11 @@
           <button type="button" id="delete-btn" class="inline-flex items-center rounded border border-transparent bg-red-600 px-2.5 py-1.5 text-xs font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">{{ __('Delete') }}</button>
           <button type="button" id="save-btn" class="inline-flex items-center rounded border border-transparent bg-indigo-600 px-2.5 py-1.5 text-xs font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">{{ __('Save') }}</button>
         </div>
+    </form>
+    <form id="delete-form" method="post" action="{{ route('reservation.delete') }}">
+        @csrf
+        @method('delete')
+        <input type="hidden" name="start_date" value="">
+        <input type="hidden" name="end_date" value="">
     </form>
 </section>

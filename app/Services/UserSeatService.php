@@ -24,11 +24,14 @@ final class UserSeatService
     private function inserts(array $user_seats)
     {
         $inserts = [];
+        $i = 0;
         foreach ($user_seats as $user_seat) {
             $inserts[] = [
                 'user_id' => Auth::id(),
                 'seat_id' => $user_seat,
+                'idx' => $i,
             ];
+            $i++;
         }
         $this->userSeatRepository->create($inserts);
     }

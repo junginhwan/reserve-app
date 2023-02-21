@@ -3,6 +3,7 @@
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\ReservationController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -30,7 +31,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/setting', [SettingController::class, 'edit'])->name('setting.edit');
     Route::patch('/setting', [SettingController::class, 'update'])->name('setting.update');
 
-    Route::get('/reservation/{id}', [ReservationController::class, 'get'])->name('reservation.get');
+    Route::get('/reservation', [ReservationController::class, 'get'])->name('reservation.get');
     Route::patch('/reservation', [ReservationController::class, 'update'])->name('reservation.update');
     Route::delete('/reservation', [ReservationController::class, 'delete'])->name('reservation.delete');
 });
