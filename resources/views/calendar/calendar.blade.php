@@ -41,6 +41,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initialView: 'dayGridMonth',
     locale: 'ko',
     selectable: true,
+    longPressDelay: 1,
     unselectAuto: false,
     select : function (event) {
       start_str = event.startStr;

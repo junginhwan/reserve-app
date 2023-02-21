@@ -64,8 +64,9 @@
 
                             <div class="ml-12">
                                 <div class="mt-2 text-gray-600 dark:text-gray-400 text-sm">
+                                    회원 가입 후 사용할 수 있습니다.<br/>
                                     좋은 자리를 선점하기 위한 웹 어플리케이션이 아닙니다.<br/>
-                                    회원 가입 후 사용할 수 있습니다.
+                                    모바일에서도 사용할 수 있습니다.
                                 </div>
                             </div>
                         </div>
