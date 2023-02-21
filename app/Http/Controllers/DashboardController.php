@@ -18,11 +18,14 @@ class DashboardController extends Controller
     {
         $reservationService = new ReservationService();
         $seatOptions = $seatService->seatOptions();
+
+        
         return view('dashboard', [
             'user' => $request->user(),
             'reservationTimes' => $settingService->reservationTimes(),
             'seatOptions' => $seatOptions,
             'reservations' => $reservationService->reservations(date('Y-m-d')),
+            'user_seats' => $request->user()->user_seats()->orderBy('idx')->get(),
         ]);
     }
 }

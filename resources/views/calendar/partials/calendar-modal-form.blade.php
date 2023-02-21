@@ -22,7 +22,7 @@
         @for($i=1, $j=0; $i<=3; $i++, $j++)
         <div>
             <x-input-label for="user_seats" :value="__('선호 좌석 ').$i" />
-            <x-select name="user_seats[]" :options="$seatOptions" :value="old('user_seats[]', (!empty($user->user_seats[$j])) ? $user->user_seats[$j]?->seat_id : '')" />
+            <x-select name="user_seats[]" :options="$seatOptions" :value="old('user_seats[]', (!empty($user_seats[$j])) ? $user_seats[$j]?->seat_id : '')" />
         </div>
         @endfor
 
