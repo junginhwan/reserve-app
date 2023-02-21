@@ -29,21 +29,41 @@ let start_str = '';
 let end_str = '';
 const reservations = <?php echo json_encode($reservations); ?>;
 
+const default_value = {
+  start_time: "{{ $user->setting?->start_time ?? '09:30' }}",
+  end_time: "{{ $user->setting?->end_time ?? '09:30' }}",
+  user_seats: <?php echo json_encode($user_seats); ?>,
+};
+
 document.addEventListener('DOMContentLoaded', function() {
   var calendarEl = document.getElementById('calendar');
   var calendar = new FullCalendar.Calendar(calendarEl, {
     initialView: 'dayGridMonth',
     locale: 'ko',
     selectable: true,
-    selectHelper: true,
     unselectAuto: false,
     select : function (event) {
       start_str = event.startStr;
       end_str = event.endStr;
     },
-    // eventClick: function (event) {
-    //     console.log(event);
-    // },
+    dateClick: function (event) {
+      document.querySelector('#calendar-form [name=start_time]').value = default_value.start_time;
+      document.querySelector('#calendar-form [name=end_time]').value = default_value.end_time;
+      for (let i=0; i<3; i++) {
+        document.querySelectorAll("#calendar-form [name='user_seats[]']")[i].value = (default_value.user_seats[i]?.seat_id) ? default_value.user_seats[i]?.seat_id : '';
+      }
+
+      for (let i=0; i<reservations.length; i++) {
+        if (reservations[i].start === event.dateStr) {
+          document.querySelector('#calendar-form [name=start_time]').value = reservations[i].start_time;
+          document.querySelector('#calendar-form [name=end_time]').value = reservations[i].end_time;
+          for (let j=0; j<reservations[i].seats.length; j++) {
+            document.querySelectorAll("#calendar-form [name='user_seats[]']")[j].value = reservations[i].seats[j].seat_id;
+          }
+          break;
+        }
+      }
+    },
     selectAllow: function(info) {
         if (new Date(info.start) <= new Date()){
           return false;

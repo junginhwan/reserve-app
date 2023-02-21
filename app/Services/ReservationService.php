@@ -31,6 +31,7 @@ class ReservationService
                 'reserved_seat_name' => $reservation['reserved_seat_name'],
                 'code' => $reservation['code'],
                 'message' => $reservation['message'],
+                'seats' => $reservation->reservation_seats,
             ];
         }
         return $result;
