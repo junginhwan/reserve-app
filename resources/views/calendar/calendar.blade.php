@@ -11,7 +11,8 @@
         <div class="ml-3">
           <div class="mt-2 text-sm text-write">
             <ul role="list" class="list-disc space-y-1 pl-5" id="alert-message">
-              <li>날짜는 드래그를 통해 일괄 저장할 수 있습니다.</li>
+              <li><a href="{{ route('setting.edit') }}">[Setting]</a> 에서 MQV 정보를 설정해 주세요.</li>
+              <li>달력은 마우스 드래그를 통해 일괄로 선택 한 후 저장할 수 있습니다.</li>
               <li>토요일 / 일요일은 저장되지 않습니다.</li>
             </ul>
           </div>
