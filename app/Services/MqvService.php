@@ -116,7 +116,7 @@ class MqvService
                 $exec = $this->reservationExec($datetime, $user, $reservation->reservation_seats, $reservation->start_time, $reservation->end_time);
                 $logger->info(__METHOD__. "{$user->name} message : {$exec['message']}");
 
-                $reservation->code = (!empty($exec['code'])) ? $exec['code'] : 'SUCCESS';
+                $reservation->code = (!empty($exec['code'])) ? $exec['code'] : null;
                 $reservation->message = $exec['message'];
                 $reservation->save();
                 // mail($user->email, $message, $message);
@@ -159,6 +159,7 @@ class MqvService
             $result = $this->seatReservation($start_date, $end_date, $seat->seat_id);
             if (empty($result['code'])) {
                 $this->reservation_dates[$user->id][] = $reservation_date;
+                $code = "SUCCESS";
                 $message = "성공 : MQV {$reservation_date} 자리 예약에 성공하였습니다.";
                 break;
             } else {
