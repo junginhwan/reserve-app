@@ -24,7 +24,7 @@ class ReservationService
         $reservations = $this->findByReservationMonth($month);
         foreach ($reservations as $reservation) {
             $result[] = [
-                'title' => $reservation['code'] === null ? '예약중' : '완료',
+                'title' => $this->codeMessage($reservation['code']),
                 'start' => $reservation['reservation_date'],
                 'start_time' => $reservation['start_time'],
                 'end_time' => $reservation['end_time'],
@@ -34,6 +34,17 @@ class ReservationService
             ];
         }
         return $result;
+    }
+
+    private function codeMessage($code)
+    {
+        if ($code === null) {
+            return '예약중';
+        } else if ($code === 'SUCCESS') {
+            return '완료';
+        } else {
+            return '실패';
+        }
     }
 
     public function update(array $param): bool
