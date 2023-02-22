@@ -65,8 +65,7 @@
                             <div class="ml-12">
                                 <div class="mt-2 text-gray-600 dark:text-gray-400 text-sm">
                                     회원 가입 후 사용할 수 있습니다.<br/>
-                                    좋은 자리를 선점하기 위한 웹 어플리케이션이 아닙니다.<br/>
-                                    모바일에서도 사용할 수 있습니다.
+                                    좋은 자리를 선점하기 위한 웹 어플리케이션이 아닙니다.
                                 </div>
                             </div>
                         </div>
@@ -76,13 +75,7 @@
                 <div class="flex justify-center mt-4 sm:items-center sm:justify-between">
                     <div class="text-center text-sm text-gray-500 sm:text-left">
                         <div class="flex items-center">
-
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="ml-4 -mt-px w-5 h-5 text-gray-400">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
-                            </svg>
-
-                            
-                                사용문의 : 정인환
+                            사용문의 : 정인환
                         </div>
                     </div>
 
