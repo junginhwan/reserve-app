@@ -68,6 +68,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       }
     },
+    eventClick: function (e) {
+      if (e.event._def?.extendedProps?.message) {
+        alert(e.event._def?.extendedProps?.message.replaceAll(" | ", "\n"));
+      }
+    },
     selectAllow: function(info) {
         if (new Date(info.start) <= new Date()){
           return false;
