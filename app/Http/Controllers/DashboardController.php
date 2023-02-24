@@ -6,6 +6,7 @@ use App\Services\ReservationService;
 use App\Services\SeatService;
 use App\Services\SettingService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
@@ -19,7 +20,6 @@ class DashboardController extends Controller
         $reservationService = new ReservationService();
         $seatOptions = $seatService->seatOptions();
 
-        
         return view('dashboard', [
             'user' => $request->user(),
             'reservationTimes' => $settingService->reservationTimes(),

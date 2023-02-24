@@ -100,6 +100,14 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   CalendarForm.prototype.save = function () {
+
+    const start_time = document.querySelector('[name=start_time]').value;
+    const end_time = document.querySelector('[name=end_time]').value;
+    if (start_time >= end_time) {
+      alert('예약 종료 시간을 확인해 주세요');
+      return;
+    }
+    
     if (!start_str) {
       alert('날짜를 선택해 주세요.');
       return;

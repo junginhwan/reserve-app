@@ -6,6 +6,7 @@ namespace App\Services;
 
 use xj\snoopy\Snoopy;
 use App\Models\Reservation;
+use Illuminate\Support\Facades\App;
 
 class MqvService
 {
@@ -61,12 +62,10 @@ class MqvService
         $floors = $this->floors();
         if (isset($floors['seats'])) {
             foreach ($floors['seats'] as $seat) {
-                if (empty($seat['userName'])) {
-                    $result[] = [
-                        'id' => $seat['seatId'],
-                        'name' => $seat['seatName'],
-                    ];
-                }
+                $result[] = [
+                    'id' => $seat['seatId'],
+                    'name' => $seat['seatName'],
+                ];
             }
         }
         return $result;
@@ -119,7 +118,10 @@ class MqvService
                 $reservation->code = (!empty($exec['code'])) ? $exec['code'] : null;
                 $reservation->message = $exec['message'];
                 $reservation->save();
-                // mail($user->email, $message, $message);
+
+                if (App::environment('local') && !empty($exec['code']) && $exec['code'] !== 'SUCCESS') {
+                    mail($user->email, "자리 예약 실패", $exec['message']);
+                }
             }
         }
     }
@@ -140,7 +142,9 @@ class MqvService
                     if (strtotime($datetime->format('Y-m-d')) === strtotime($reservation_date) && !in_array($reservation_date, $this->reservation_dates[$user->id])) {
                         $exec = $this->reservationExec($datetime, $user, $user->user_seats, $user->setting?->start_time, $user->setting?->end_time);
                         $logger->info(__METHOD__. "{$user->name} message : {$exec['message']}");
-                        // mail($user->email, $message, $message);
+                        if (App::environment('local') && !empty($exec['code']) && $exec['code'] !== 'SUCCESS') {
+                            mail($user->email, "자리 예약 실패", $exec['message']);
+                        }
                     }
                 }
             } else {
@@ -163,7 +167,7 @@ class MqvService
                 $message = "성공 : MQV {$reservation_date} 자리 예약에 성공하였습니다.";
                 break;
             } else {
-                $message .= "실패 : {$result['code']} {$result['message']} <br/>";
+                $message .= "실패 : {$result['code']} {$result['message']} | ";
                 $code = $result['code'];
             }
         }
