@@ -119,9 +119,9 @@ class MqvService
                 $reservation->message = $exec['message'];
                 $reservation->save();
 
-                if (App::environment('production') && !empty($exec['code']) && $exec['code'] !== 'SUCCESS') {
-                    mail($user->email, "자리 예약 실패", $exec['message']);
-                }
+                // if (App::environment('production') && !empty($exec['code']) && $exec['code'] !== 'SUCCESS') {
+                //     mail($user->email, "자리 예약 실패", $exec['message']);
+                // }
             }
         }
     }
@@ -142,9 +142,9 @@ class MqvService
                     if (strtotime($datetime->format('Y-m-d')) === strtotime($reservation_date) && !in_array($reservation_date, $this->reservation_dates[$user->id])) {
                         $exec = $this->reservationExec($datetime, $user, $user->user_seats, $user->setting?->start_time, $user->setting?->end_time);
                         $logger->info(__METHOD__. "{$user->name} message : {$exec['message']}");
-                        if (App::environment('production') && !empty($exec['code']) && $exec['code'] !== 'SUCCESS') {
-                            mail($user->email, "자리 예약 실패", $exec['message']);
-                        }
+                        // if (App::environment('production') && !empty($exec['code']) && $exec['code'] !== 'SUCCESS') {
+                        //     mail($user->email, "자리 예약 실패", $exec['message']);
+                        // }
                     }
                 }
             } else {
