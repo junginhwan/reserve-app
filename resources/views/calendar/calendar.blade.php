@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   CalendarForm.prototype.save = function () {
-
+    const user_seats = [];
     const start_time = document.querySelector('[name=start_time]').value;
     const end_time = document.querySelector('[name=end_time]').value;
     if (start_time >= end_time) {
@@ -112,7 +112,13 @@ document.addEventListener('DOMContentLoaded', function() {
       alert('날짜를 선택해 주세요.');
       return;
     }
-    const user_seats = [];
+
+    if (!document.querySelector('[name=mqv_id]').value) {
+      alert('setting 페이지에서 MQV 정보를 입력해 주세요');
+      location.href = "{{ route('setting.edit') }}";
+      return;
+    }
+
     document.querySelectorAll("[name='user_seats[]']").forEach(function (user_seat) {
         if (user_seat.value) {
           user_seats.push(user_seat.value);

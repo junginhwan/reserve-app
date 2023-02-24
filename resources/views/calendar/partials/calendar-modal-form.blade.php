@@ -8,6 +8,7 @@
         @method('patch')
         <input type="hidden" name="start_date" value="">
         <input type="hidden" name="end_date" value="">
+        <input type="hidden" name="mqv_id" value="{{ $user->setting?->mqv_id }}">
 
         <div>
             <x-input-label for="start_time" :value="__('예약 시작 시간')" />
