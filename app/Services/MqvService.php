@@ -177,9 +177,6 @@ class MqvService
                 $message = "성공 : MQV {$seat->seat?->name} 자리 예약에 성공하였습니다.";
                 break;
             } else {
-                if (strlen($message) > 0) {
-                    $message .= ", ";
-                }
                 $message .= "{$seat->seat?->name} => {$result['code']} {$result['message']}";
                 $code = $result['code'];
             }
