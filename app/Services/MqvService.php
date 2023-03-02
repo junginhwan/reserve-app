@@ -126,7 +126,7 @@ class MqvService
                     $subject .= ($exec['code'] === 'SUCCESS') ? "성공" : "실패";
                     $subject .= " {$datetime->format('Y-m-d')}";
 
-                    Mail::to($user->email)->send(new ReservationResultMail([
+                    Mail::to($user->email)->queue(new ReservationResultMail([
                         'subject' => $subject,
                         'name' => $user->name,
                         'content' => $exec['message']
