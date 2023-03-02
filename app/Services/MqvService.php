@@ -7,6 +7,8 @@ namespace App\Services;
 use xj\snoopy\Snoopy;
 use App\Models\Reservation;
 use Illuminate\Support\Facades\App;
+use App\Mail\ReservationResultMail;
+use Illuminate\Support\Facades\Mail;
 
 class MqvService
 {
@@ -119,9 +121,17 @@ class MqvService
                 $reservation->message = $exec['message'];
                 $reservation->save();
 
-                // if (App::environment('production') && !empty($exec['code']) && $exec['code'] !== 'SUCCESS') {
-                //     mail($user->email, "자리 예약 실패", $exec['message']);
-                // }
+                if (!empty($exec['code'])) {
+                    $subject = "커넥트 웨이브 가산 오피스 자리예약 ";
+                    $subject .= ($exec['code'] === 'SUCCESS') ? "성공" : "실패";
+                    $subject .= " {$datetime->format('Y-m-d')}";
+
+                    Mail::to($user->email)->send(new ReservationResultMail([
+                        'subject' => $subject,
+                        'name' => $user->name,
+                        'content' => $exec['message']
+                    ]));
+                }
             }
         }
     }
@@ -164,12 +174,18 @@ class MqvService
             if (empty($result['code'])) {
                 $this->reservation_dates[$user->id][] = $reservation_date;
                 $code = "SUCCESS";
-                $message = "성공 : MQV {$reservation_date} 자리 예약에 성공하였습니다.";
+                $message = "성공 : MQV {$seat->seat?->name} 자리 예약에 성공하였습니다.";
                 break;
             } else {
-                $message .= "실패 : {$result['code']} {$result['message']} | ";
+                if (strlen($message) > 0) {
+                    $message .= ", ";
+                }
+                $message .= "{$seat->seat?->name} => {$result['code']} {$result['message']}";
                 $code = $result['code'];
             }
+        }
+        if (strlen($code) > 0 && $code !== 'SUCCESS') {
+            $message = "실패 : {$message}";
         }
         return [
             'code' => $code,

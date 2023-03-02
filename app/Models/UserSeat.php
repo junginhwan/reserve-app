@@ -13,4 +13,9 @@ class UserSeat extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function seat()
+    {
+        return $this->belongsTo(Seat::class);
+    }
 }

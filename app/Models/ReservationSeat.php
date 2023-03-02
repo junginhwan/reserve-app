@@ -8,4 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class ReservationSeat extends Model
 {
     use HasFactory;
+
+    public function seat()
+    {
+        return $this->belongsTo(Seat::class);
+    }
 }
