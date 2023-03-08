@@ -121,18 +121,23 @@ class MqvService
                 $reservation->message = $exec['message'];
                 $reservation->save();
 
-                if (!empty($exec['code'])) {
-                    $subject = "커넥트 웨이브 가산 오피스 자리예약 ";
-                    $subject .= ($exec['code'] === 'SUCCESS') ? "성공" : "실패";
-                    $subject .= " {$datetime->format('Y-m-d')}";
-
-                    Mail::to($user->email)->queue(new ReservationResultMail([
-                        'subject' => $subject,
-                        'name' => $user->name,
-                        'content' => $exec['message']
-                    ]));
-                }
+                $this->email($exec, $user, $datetime);
             }
+        }
+    }
+
+    private function email($exec, $user, $datetime)
+    {
+        if (!empty($exec['code'])) {
+            $subject = "커넥트 웨이브 가산 오피스 자리예약 ";
+            $subject .= ($exec['code'] === 'SUCCESS') ? "성공" : "실패";
+            $subject .= " {$datetime->format('Y-m-d')}";
+
+            Mail::to($user->email)->queue(new ReservationResultMail([
+                'subject' => $subject,
+                'name' => $user->name,
+                'content' => $exec['message']
+            ]));
         }
     }
 
@@ -148,13 +153,12 @@ class MqvService
             if ($this->isMeetingRoomsReservations()) {
                 $logger->info(__METHOD__. "{$user->name} 미팅 일정 확인");
                 foreach ($reservations['meetingRoomReservationList'] as $reservation) {
-                    $reservation_date = $reservation['startAt'][0]."-".sprintf('%02d',$reservation['startAt'][1])."-".$reservation['startAt'][2];
+                    $reservation_date = $reservation['startAt'][0]."-".sprintf('%02d',$reservation['startAt'][1])."-".sprintf('%02d',$reservation['startAt'][2]);
                     if (strtotime($datetime->format('Y-m-d')) === strtotime($reservation_date) && !in_array($reservation_date, $this->reservation_dates[$user->id])) {
-                        $exec = $this->reservationExec($datetime, $user, $user->user_seats, $user->setting?->start_time, $user->setting?->end_time);
+                        $exec = $this->reservationExec($datetime, $user, $user->user_seats()->orderBy('idx', 'asc')->get(), $user->setting?->start_time, $user->setting?->end_time);
                         $logger->info(__METHOD__. "{$user->name} message : {$exec['message']}");
-                        // if (App::environment('production') && !empty($exec['code']) && $exec['code'] !== 'SUCCESS') {
-                        //     mail($user->email, "자리 예약 실패", $exec['message']);
-                        // }
+
+                        $this->email($exec, $user, $datetime);
                     }
                 }
             } else {
@@ -172,7 +176,6 @@ class MqvService
         foreach ($seats as $seat) {
             $result = $this->seatReservation($start_date, $end_date, $seat->seat_id);
             if (empty($result['code'])) {
-                $this->reservation_dates[$user->id][] = $reservation_date;
                 $code = "SUCCESS";
                 $message = "성공 : MQV {$seat->seat?->name} 자리 예약에 성공하였습니다.";
                 break;
@@ -181,6 +184,7 @@ class MqvService
                 $code = $result['code'];
             }
         }
+        $this->reservation_dates[$user->id][] = $reservation_date;
         if (strlen($code) > 0 && $code !== 'SUCCESS') {
             $message = "실패 : {$message}";
         }
